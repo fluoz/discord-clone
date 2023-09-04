@@ -82,11 +82,14 @@ const RegisterPage = () => {
   };
 
   useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
     if (session?.user) {
       router.push("/");
     }
-    setIsMounted(true);
-  }, []);
+  }, [session]);
 
   if (!isMounted) {
     return null;

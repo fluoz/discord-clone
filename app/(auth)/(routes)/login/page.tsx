@@ -26,6 +26,7 @@ import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Separator } from "@/components/ui/separator";
 import { Icon } from "@/components/icons/icon";
+import { useToast } from "@/components/ui/use-toast";
 
 const loginSchema = z.object({
   email: z.string().min(1, {
@@ -38,6 +39,7 @@ const loginSchema = z.object({
 
 const LoginPage = () => {
   const [isMounted, setIsMounted] = useState(false);
+  const { toast } = useToast();
   const { data: session } = useSession();
   const router = useRouter();
 
@@ -52,15 +54,27 @@ const LoginPage = () => {
   const isLoading = form.formState.isSubmitting;
 
   const onSubmit = (values: z.infer<typeof loginSchema>) => {
-    signIn("credentials", values);
+    try {
+      signIn("credentials", values);
+      router.push("/");
+    } catch (err: any) {
+      toast({
+        variant: "destructive",
+        title: "Uh oh! Something went wrong.",
+        description: err.response.data,
+      });
+    }
   };
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
     if (session?.user) {
       router.push("/");
     }
-    setIsMounted(true);
-  }, []);
+  }, [session]);
 
   if (!isMounted) {
     return null;

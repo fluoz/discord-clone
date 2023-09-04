@@ -5,7 +5,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 
-import React, { useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -26,6 +25,7 @@ import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { FileUpload } from "../file-upload";
 import { useRouter } from "next/navigation";
+import { useModal } from "@/hooks/use-modal-store";
 
 const formSchema = z.object({
   name: z.string().min(1, {
@@ -36,9 +36,12 @@ const formSchema = z.object({
   }),
 });
 
-const InitialModal = () => {
-  const [isMounted, setIsMounted] = useState(false);
+const CreateServerModal = () => {
+  const { isOpen, onClose, type } = useModal();
   const router = useRouter();
+
+  const isModalOpen = isOpen && type === "createServer";
+
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -51,25 +54,23 @@ const InitialModal = () => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await axios.post("/api/servers", values);
+      const server = await axios.post("/api/servers", values);
       form.reset();
       router.refresh();
-      window.location.reload();
+      onClose();
+      router.push("/servers/" + server.data.id);
     } catch (err: any) {
       console.log(err);
     }
   };
 
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  if (!isMounted) {
-    return null;
-  }
+  const handleClose = () => {
+    form.reset();
+    onClose();
+  };
 
   return (
-    <Dialog open={isMounted}>
+    <Dialog open={isModalOpen} onOpenChange={handleClose}>
       <DialogContent className="bg-white text-black p-0 overflow-hidden">
         <DialogHeader className="pt-8 px-6">
           <DialogTitle className="text-2xl text-center font-bold">
@@ -110,8 +111,8 @@ const InitialModal = () => {
                     </FormLabel>
                     <FormControl>
                       <Input
-                        autoComplete="off"
                         disabled={isLoading}
+                        autoComplete="off"
                         className="bg-zinc-300/50 border-0 focus-visible:ring-0 text-black focus-visible:ring-offset-0"
                         placeholder="Enter server name"
                         {...field}
@@ -134,4 +135,4 @@ const InitialModal = () => {
   );
 };
 
-export default InitialModal;
+export default CreateServerModal;
