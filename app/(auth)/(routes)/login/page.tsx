@@ -56,7 +56,7 @@ const LoginPage = () => {
   const onSubmit = (values: z.infer<typeof loginSchema>) => {
     try {
       signIn("credentials", values);
-      router.push("/");
+      window.location.href = "/";
     } catch (err: any) {
       toast({
         variant: "destructive",
@@ -72,7 +72,7 @@ const LoginPage = () => {
 
   useEffect(() => {
     if (session?.user) {
-      router.push("/");
+      window.location.href = "/";
     }
   }, [session]);
 
