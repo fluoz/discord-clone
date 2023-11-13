@@ -40,7 +40,9 @@ const ServerMember = ({ member, server }: Props) => {
         )}
       >
         <UserAvatar
-          src={member.user.image as string}
+          src={
+            member?.user?.image ? member?.user?.image : "/default_avatar.png"
+          }
           className="h-8 w-8 md:h-8 md:w-8"
         />
         <p

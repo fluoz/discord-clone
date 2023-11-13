@@ -53,10 +53,18 @@ const LoginPage = () => {
 
   const isLoading = form.formState.isSubmitting;
 
-  const onSubmit = (values: z.infer<typeof loginSchema>) => {
+  const onSubmit = async (values: z.infer<typeof loginSchema>) => {
     try {
-      signIn("credentials", values);
-      window.location.href = "/";
+      const login = await signIn("credentials", { ...values, redirect: false });
+
+      if (login?.error) {
+        toast({
+          variant: "destructive",
+          title: "Uh oh! Something went wrong.",
+          description: login?.error,
+        });
+      }
+      // window.location.href = "/";
     } catch (err: any) {
       toast({
         variant: "destructive",

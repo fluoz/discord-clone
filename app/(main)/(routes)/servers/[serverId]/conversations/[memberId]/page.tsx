@@ -5,15 +5,21 @@ import prisma from "@/lib/prismadb";
 import React from "react";
 import { getOrCreateConversation } from "@/lib/conversation";
 import ChatHeader from "@/components/chat/chat-header";
+import ChatMessages from "@/components/chat/chat-messages";
+import ChatInput from "@/components/chat/chat-input";
+import MediaRoom from "@/components/media-room";
 
 interface Props {
   params: {
     memberId: string;
     serverId: string;
   };
+  searchParams: {
+    video?: boolean;
+  };
 }
 
-const MemberId = async ({ params }: Props) => {
+const MemberId = async ({ params, searchParams }: Props) => {
   const currentUser = await getSession();
 
   if (!profile) {
@@ -50,11 +56,43 @@ const MemberId = async ({ params }: Props) => {
   return (
     <div className="bg-white dark:bg-[#313338] flex flex-col h-full">
       <ChatHeader
-        imageUrl={otherMember.user.image as string}
+        imageUrl={
+          otherMember?.user?.image
+            ? otherMember?.user?.image
+            : "/default_avatar.png"
+        }
         name={otherMember.user.name as string}
         serverId={params.serverId}
         type="conversation"
       />
+      {searchParams.video && (
+        <MediaRoom chatId={conversation.id} video={true} audio={true} />
+      )}
+      {!searchParams.video && (
+        <>
+          <ChatMessages
+            member={currentMember}
+            name={otherMember.user.name as string}
+            chatId={conversation.id}
+            type="conversation"
+            apiUrl="/api/direct-messages"
+            paramKey="conversationId"
+            paramValue={conversation.id}
+            socketUrl="/api/socket/direct-messages"
+            socketQuery={{
+              conversationId: conversation.id,
+            }}
+          />
+          <ChatInput
+            name={otherMember.user.name as string}
+            type="conversation"
+            apiUrl="/api/socket/direct-messages"
+            query={{
+              conversationId: conversation.id,
+            }}
+          />
+        </>
+      )}
     </div>
   );
 };

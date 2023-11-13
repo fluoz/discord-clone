@@ -4,6 +4,8 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import { SessionProvider } from "next-auth/react";
 import ModalProvider from "@/components/providers/ModalProvider";
+import { SocketProvider } from "@/components/navigation/socket-provider";
+import QueryProvider from "@/components/providers/query-provider";
 
 const Provider = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -14,9 +16,11 @@ const Provider = ({ children }: { children: React.ReactNode }) => {
         enableSystem={false}
         storageKey="discord-theme"
       >
-        <ModalProvider />
-        {children}
-        <Toaster />
+        <SocketProvider>
+          <ModalProvider />
+          <QueryProvider>{children}</QueryProvider>
+          <Toaster />
+        </SocketProvider>
       </ThemeProvider>
     </SessionProvider>
   );
