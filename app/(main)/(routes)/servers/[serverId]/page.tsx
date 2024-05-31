@@ -10,7 +10,7 @@ interface Props {
 }
 const ServerPage = async ({ params }: Props) => {
   const currentUser = await getSession();
-  console.log("Hasan");
+  console.log("Hasana");
   if (!currentUser) {
     return redirect("/");
   }
